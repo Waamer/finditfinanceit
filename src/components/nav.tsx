@@ -107,7 +107,7 @@ export default function Nav() {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="hover:bg-black/[6%] active:bg-black/[6%] transition-colors">Finance</NavigationMenuTrigger>
                   <NavigationMenuContent className="shadow-2xl">
-                    <ul className="grid w-[400px] gap-3 p-4">
+                    <ul className="grid w-[400px] gap-1 p-1">
                       <li>
                         <NavigationMenuLink asChild>
                           <Link href="/finance-department" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-black/[6%] hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
