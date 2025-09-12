@@ -85,7 +85,7 @@ export default function Nav() {
 
   return (
     <motion.header
-      className="bg-white shadow-xl border-b"
+      className="bg-white border-b"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -102,17 +102,17 @@ export default function Nav() {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link href="#">Home</Link>
+                    <Link href="/" className="hover:bg-black/[6%] transition-colors">Home</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>Finance</NavigationMenuTrigger>
-                  <NavigationMenuContent>
+                  <NavigationMenuTrigger className="hover:bg-black/[6%] active:bg-black/[6%] transition-colors">Finance</NavigationMenuTrigger>
+                  <NavigationMenuContent className="shadow-2xl">
                     <ul className="grid w-[400px] gap-3 p-4">
                       <li>
                         <NavigationMenuLink asChild>
-                          <Link href="/finance-department" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                          <Link href="/finance-department" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-black/[6%] hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
                             <div className="text-sm font-medium leading-none">Before you apply for car financing</div>
                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                               Learn what you need to know before applying for car financing
@@ -122,7 +122,7 @@ export default function Nav() {
                       </li>
                       <li>
                         <NavigationMenuLink asChild>
-                          <Link href="/simple-car-loan" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                          <Link href="/simple-car-loan" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-black/[6%] hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
                             <div className="text-sm font-medium leading-none">Simple Car Loans</div>
                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                               Get a simple and straightforward car loan solution
@@ -136,19 +136,19 @@ export default function Nav() {
                 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link href="#reviews">Reviews</Link>
+                    <Link href="/reviews" className="hover:bg-black/[6%] transition-colors">Reviews</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link href="#faq">FAQ</Link>
+                    <Link href="/FAQ" className="hover:bg-black/[6%] transition-colors">FAQ</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link href="#about">About Us</Link>
+                    <Link href="/about" className="hover:bg-black/[6%] transition-colors">About Us</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -215,7 +215,7 @@ export default function Nav() {
                 <div className="flex flex-col space-y-1">
                   <motion.div variants={menuItemVariants}>
                     <Link 
-                      href="#" 
+                      href="/" 
                       className="block px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-gray-100 rounded-lg transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
@@ -246,7 +246,7 @@ export default function Nav() {
                   
                   <motion.div variants={menuItemVariants}>
                     <Link 
-                      href="#reviews" 
+                      href="/reviews" 
                       className="block px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-gray-100 rounded-lg transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
@@ -256,7 +256,7 @@ export default function Nav() {
                   
                   <motion.div variants={menuItemVariants}>
                     <Link 
-                      href="#faq" 
+                      href="/FAQ" 
                       className="block px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-gray-100 rounded-lg transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
@@ -266,7 +266,7 @@ export default function Nav() {
                   
                   <motion.div variants={menuItemVariants}>
                     <Link 
-                      href="#about" 
+                      href="/about" 
                       className="block px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-gray-100 rounded-lg transition-colors"
                       onClick={() => setIsOpen(false)}
                     >

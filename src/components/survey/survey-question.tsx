@@ -11,14 +11,14 @@ import type { QuizData } from "@/app/survey/page"
 interface QuizQuestionProps {
   step: number
   quizData: QuizData
-  updateQuizData: (section: keyof QuizData, field: string, value: any) => void
+  updateQuizData: (section: keyof QuizData, field: string, value: string | number | boolean) => void
   onNext: () => void
 }
 
 export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQuestionProps) {
   const [validationError, setValidationError] = useState<string>("")
 
-  const handleInputChange = (field: string, value: any, section: keyof QuizData) => {
+  const handleInputChange = (field: string, value: string | number | boolean, section: keyof QuizData) => {
     updateQuizData(section, field, value)
     // Clear validation error when user starts typing
     if (validationError) setValidationError("")
@@ -27,13 +27,13 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
   const validateAndProceed = () => {
     // Validation logic for form steps
     switch (step) {
-      case 7: // Company information
+      case 8: // Company information
         if (!quizData.personalInfo.companyName?.trim() || !quizData.personalInfo.jobTitle?.trim()) {
           setValidationError("Please fill in both company name and job title")
           return
         }
         break
-      case 8: // Address information
+      case 9: // Address information
         if (!quizData.personalInfo.streetAddress?.trim() || 
             !quizData.personalInfo.city?.trim() || 
             !quizData.personalInfo.province?.trim() || 
@@ -42,13 +42,13 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           return
         }
         break
-      case 9: // Date of birth
+      case 10: // Date of birth
         if (!quizData.personalInfo.dateOfBirth?.trim()) {
           setValidationError("Please enter your date of birth")
           return
         }
         break
-      case 10: // Contact information
+      case 11: // Contact information
         if (!quizData.personalInfo.fullName?.trim() || 
             !quizData.personalInfo.phone?.trim() || 
             !quizData.personalInfo.email?.trim()) {
@@ -83,11 +83,12 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 requestAnimationFrame(onNext);
               }}
             >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                   { value: "Car", icon: "🚗", bgColor: "bg-blue-50", borderColor: "border-blue-200", hoverColor: "hover:bg-blue-100", selected: "bg-blue-200/85 shadow-lg" },
                   { value: "SUV", icon: "🚙", bgColor: "bg-green-50", borderColor: "border-green-200", hoverColor: "hover:bg-green-100", selected: "bg-green-200/85 shadow-lg" },
-                  { value: "Truck", icon: "🚛", bgColor: "bg-red-50", borderColor: "border-red-200", hoverColor: "hover:bg-red-100", selected: "bg-red-200/85 shadow-lg" }
+                  { value: "Truck", icon: "🚛", bgColor: "bg-red-50", borderColor: "border-red-200", hoverColor: "hover:bg-red-100", selected: "bg-red-200/85 shadow-lg" },
+                  { value: "Sedan", icon: "🚗", bgColor: "bg-yellow-50", borderColor: "border-yellow-200", hoverColor: "hover:bg-yellow-100", selected: "bg-yellow-200/85 shadow-lg" }
                 ].map((vehicle) => {
                   const isSelected = quizData.vehicleInfo.vehicleType === vehicle.value
                   return (
@@ -117,6 +118,35 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
         )
 
       case 1:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">List your desired vehicle</h2>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="" className="text-base font-medium"></Label>
+                <Input
+                  id=""
+                  value={quizData.vehicleInfo.desiredVehicle || ""}
+                  onChange={(e) => handleInputChange("desiredVehicle", e.target.value, "vehicleInfo")}
+                  placeholder="Enter your desired vehicle (Ex: 2020 Honda Civic)"
+                  className="mt-2"
+                  required
+                />
+              </div>
+            </div>
+            {validationError && (
+              <div className="text-red-600 text-sm mt-2">{validationError}</div>
+            )}
+            <div className="pt-4">
+              <Button onClick={validateAndProceed} className="w-full">
+                <span>Next</span>
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )
+
+      case 2:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">What is your budget?</h2>
@@ -164,7 +194,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           </div>
         )
 
-      case 2:
+      case 3:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">Do you have a trade in?</h2>
@@ -203,7 +233,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           </div>
         )
 
-      case 3:
+      case 4:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">What is your estimated credit rating?</h2>
@@ -250,7 +280,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           </div>
         )
 
-      case 4:
+      case 5:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">What is your employment status?</h2>
@@ -289,7 +319,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           </div>
         )
 
-      case 5:
+      case 6:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">What is your monthly income?</h2>
@@ -334,7 +364,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           </div>
         )
 
-      case 6:
+      case 7:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">How long have you been employed at your current job?</h2>
@@ -378,7 +408,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           </div>
         )
 
-      case 7:
+      case 8:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">Where do you work?</h2>
@@ -418,7 +448,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           </div>
         )
 
-      case 8:
+      case 9:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">What is your address?</h2>
@@ -482,7 +512,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           </div>
         )
 
-      case 9:
+      case 10:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">Date of Birth</h2>
@@ -509,7 +539,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
           </div>
         )
 
-      case 10:
+      case 11:
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">How do we get in touch with you?</h2>

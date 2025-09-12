@@ -16,14 +16,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AutoFinance Pro - Get Pre-Approved for Your Dream Car",
+  title: "FindItFinanceIt - Get Pre-Approved for Your Dream Car",
   description:
     "Get instant pre-approval for car financing. Quick application, competitive rates, and drive away today. Find your perfect vehicle financing solution.",
   generator: "v0.app",
   keywords: "car financing, auto loans, vehicle financing, pre-approval, car loans, automotive financing",
-  authors: [{ name: "AutoFinance Pro" }],
+  authors: [{ name: "FindItFinanceIt" }],
   openGraph: {
-    title: "AutoFinance Pro - Get Pre-Approved for Your Dream Car",
+    title: "FindItFinanceIt - Get Pre-Approved for Your Dream Car",
     description:
       "Get instant pre-approval for car financing. Quick application, competitive rates, and drive away today.",
     type: "website",
