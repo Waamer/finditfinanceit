@@ -1,72 +1,56 @@
 "use client"
 
-import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { ArrowRight, CheckCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { AddressAutocomplete } from "@/components/survey/address-autocomplete"
+import { motion, AnimatePresence } from "framer-motion"
+import { AlertCircle, ChevronDownIcon } from "lucide-react"
+import { useState } from "react"
 import type { QuizData } from "@/app/survey/page"
 
 interface QuizQuestionProps {
   step: number
   quizData: QuizData
   updateQuizData: (section: keyof QuizData, field: string, value: string | number | boolean) => void
-  onNext: () => void
+  validationError?: string
 }
 
-export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQuestionProps) {
-  const [validationError, setValidationError] = useState<string>("")
-
+export function QuizQuestion({ step, quizData, updateQuizData, validationError }: QuizQuestionProps) {
+  const [datePickerOpen, setDatePickerOpen] = useState(false)
+  
   const handleInputChange = (field: string, value: string | number | boolean, section: keyof QuizData) => {
     updateQuizData(section, field, value)
-    // Clear validation error when user starts typing
-    if (validationError) setValidationError("")
   }
 
-  const validateAndProceed = () => {
-    // Validation logic for form steps
-    switch (step) {
-      case 8: // Company information
-        if (!quizData.personalInfo.companyName?.trim() || !quizData.personalInfo.jobTitle?.trim()) {
-          setValidationError("Please fill in both company name and job title")
-          return
-        }
-        break
-      case 9: // Address information
-        if (!quizData.personalInfo.streetAddress?.trim() || 
-            !quizData.personalInfo.city?.trim() || 
-            !quizData.personalInfo.province?.trim() || 
-            !quizData.personalInfo.postalCode?.trim()) {
-          setValidationError("Please fill in all address fields")
-          return
-        }
-        break
-      case 10: // Date of birth
-        if (!quizData.personalInfo.dateOfBirth?.trim()) {
-          setValidationError("Please enter your date of birth")
-          return
-        }
-        break
-      case 11: // Contact information
-        if (!quizData.personalInfo.fullName?.trim() || 
-            !quizData.personalInfo.phone?.trim() || 
-            !quizData.personalInfo.email?.trim()) {
-          setValidationError("Please fill in all contact fields")
-          return
-        }
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!emailRegex.test(quizData.personalInfo.email)) {
-          setValidationError("Please enter a valid email address")
-          return
-        }
-        break
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      // Convert date to YYYY-MM-DD format for consistency
+      const formattedDate = selectedDate.toISOString().split('T')[0]
+      handleInputChange("dateOfBirth", formattedDate, "personalInfo")
     }
-    
-    setValidationError("")
-    onNext()
+    setDatePickerOpen(false)
   }
+
+  const ErrorAlert = ({ error }: { error?: string }) => (
+    <AnimatePresence>
+      {error && (
+        <motion.div
+          transition={{ duration: 0.2 }}
+        >
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Validation Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
 
   const renderQuestion = () => {
     switch (step) {
@@ -80,7 +64,6 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
               value={quizData.vehicleInfo.vehicleType}
               onValueChange={(value) => {
                 handleInputChange("vehicleType", value, "vehicleInfo")
-                requestAnimationFrame(onNext);
               }}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -114,13 +97,14 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 })}
               </div>
             </RadioGroup>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">List your desired vehicle</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">Find A Specific Vehicle?</h2>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="" className="text-base font-medium"></Label>
@@ -128,21 +112,12 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                   id=""
                   value={quizData.vehicleInfo.desiredVehicle || ""}
                   onChange={(e) => handleInputChange("desiredVehicle", e.target.value, "vehicleInfo")}
-                  placeholder="Enter your desired vehicle (Ex: 2020 Honda Civic)"
+                  placeholder="Find A Specific Vehicle? (Ex: 2020 Honda Civic)"
                   className="mt-2"
-                  required
                 />
               </div>
             </div>
-            {validationError && (
-              <div className="text-red-600 text-sm mt-2">{validationError}</div>
-            )}
-            <div className="pt-4">
-              <Button onClick={validateAndProceed} className="w-full">
-                <span>Next</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
@@ -154,7 +129,6 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
               value={quizData.vehicleInfo.budget}
               onValueChange={(value) => {
                 handleInputChange("budget", value, "vehicleInfo")
-                requestAnimationFrame(onNext);
               }}
             >
               <div className="space-y-4">
@@ -191,6 +165,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 })}
               </div>
             </RadioGroup>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
@@ -202,7 +177,6 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
               value={quizData.vehicleInfo.tradeIn}
               onValueChange={(value) => {
                 handleInputChange("tradeIn", value, "vehicleInfo")
-                requestAnimationFrame(onNext);
               }}
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -230,6 +204,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 })}
               </div>
             </RadioGroup>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
@@ -241,7 +216,6 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
               value={quizData.vehicleInfo.creditScore}
               onValueChange={(value) => {
                 handleInputChange("creditScore", value, "vehicleInfo")
-                requestAnimationFrame(onNext);
               }}
             >
               <div className="space-y-3">
@@ -277,6 +251,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 })}
               </div>
             </RadioGroup>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
@@ -288,7 +263,6 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
               value={quizData.vehicleInfo.employment}
               onValueChange={(value) => {
                 handleInputChange("employment", value, "vehicleInfo")
-                requestAnimationFrame(onNext);
               }}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -316,6 +290,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 })}
               </div>
             </RadioGroup>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
@@ -327,7 +302,6 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
               value={quizData.vehicleInfo.income}
               onValueChange={(value) => {
                 handleInputChange("income", value, "vehicleInfo")
-                requestAnimationFrame(onNext);
               }}
             >
               <div className="space-y-3">
@@ -361,6 +335,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 })}
               </div>
             </RadioGroup>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
@@ -372,7 +347,6 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
               value={quizData.vehicleInfo.employmentLength}
               onValueChange={(value) => {
                 handleInputChange("employmentLength", value, "vehicleInfo")
-                requestAnimationFrame(onNext);
               }}
             >
               <div className="space-y-3">
@@ -405,6 +379,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 })}
               </div>
             </RadioGroup>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
@@ -436,15 +411,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 />
               </div>
             </div>
-            {validationError && (
-              <div className="text-red-600 text-sm mt-2">{validationError}</div>
-            )}
-            <div className="pt-4">
-              <Button onClick={validateAndProceed} className="w-full">
-                <span>Next</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
@@ -452,63 +419,19 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">What is your address?</h2>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="streetAddress" className="text-base font-medium">Street Address *</Label>
-                <Input
-                  id="streetAddress"
-                  value={quizData.personalInfo.streetAddress || ""}
-                  onChange={(e) => handleInputChange("streetAddress", e.target.value, "personalInfo")}
-                  placeholder="Enter your street address"
-                  className="mt-2"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="city" className="text-base font-medium">City/Country *</Label>
-                  <Input
-                    id="city"
-                    value={quizData.personalInfo.city || ""}
-                    onChange={(e) => handleInputChange("city", e.target.value, "personalInfo")}
-                    placeholder="Enter your city"
-                    className="mt-2"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="province" className="text-base font-medium">Province *</Label>
-                  <Input
-                    id="province"
-                    value={quizData.personalInfo.province || ""}
-                    onChange={(e) => handleInputChange("province", e.target.value, "personalInfo")}
-                    placeholder="Enter your province"
-                    className="mt-2"
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="postalCode" className="text-base font-medium">Postal Code *</Label>
-                <Input
-                  id="postalCode"
-                  value={quizData.personalInfo.postalCode || ""}
-                  onChange={(e) => handleInputChange("postalCode", e.target.value, "personalInfo")}
-                  placeholder="Enter your postal code"
-                  className="mt-2"
-                  required
-                />
-              </div>
-            </div>
-            {validationError && (
-              <div className="text-red-600 text-sm mt-2">{validationError}</div>
-            )}
-            <div className="pt-4">
-              <Button onClick={validateAndProceed} className="w-full">
-                <span>Next</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <AddressAutocomplete
+              onAddressSelect={(addressData) => {
+                updateQuizData("personalInfo", "streetAddress", addressData.streetAddress)
+                updateQuizData("personalInfo", "city", addressData.city)
+                updateQuizData("personalInfo", "province", addressData.province)
+                updateQuizData("personalInfo", "postalCode", addressData.postalCode)
+              }}
+              streetAddress={quizData.personalInfo.streetAddress || ""}
+              city={quizData.personalInfo.city || ""}
+              province={quizData.personalInfo.province || ""}
+              postalCode={quizData.personalInfo.postalCode || ""}
+              validationError={validationError}
+            />
           </div>
         )
 
@@ -516,26 +439,68 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">Date of Birth</h2>
-            <div>
-              <Label htmlFor="dateOfBirth" className="text-base font-medium">Date of Birth *</Label>
-              <Input
-                id="dateOfBirth"
-                type="date"
-                value={quizData.personalInfo.dateOfBirth || ""}
-                onChange={(e) => handleInputChange("dateOfBirth", e.target.value, "personalInfo")}
-                className="mt-2"
-                required
-              />
-            </div>
-            {validationError && (
-              <div className="text-red-600 text-sm mt-2">{validationError}</div>
-            )}
-            <div className="pt-4">
-              <Button onClick={validateAndProceed} className="w-full">
-                <span>Next</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="flex flex-col gap-3"
+            >
+              <Label htmlFor="date" className="px-1 text-base font-medium">
+                Date of birth *
+              </Label>
+              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                <PopoverTrigger asChild>
+                  <motion.div
+                  >
+                    <Button
+                      variant="outline"
+                      id="date"
+                      className="w-full justify-between font-normal h-12 text-left"
+                    >
+                      {quizData.personalInfo.dateOfBirth 
+                        ? new Date(quizData.personalInfo.dateOfBirth + 'T00:00:00').toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })
+                        : "Select your date of birth"
+                      }
+                      <ChevronDownIcon className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </motion.div>
+                </PopoverTrigger>
+                <AnimatePresence>
+                  {datePickerOpen && (
+                    <PopoverContent 
+                      className="w-auto overflow-hidden p-0" 
+                      align="start"
+                      asChild
+                    >
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={quizData.personalInfo.dateOfBirth 
+                            ? new Date(quizData.personalInfo.dateOfBirth + 'T00:00:00') 
+                            : undefined
+                          }
+                          captionLayout="dropdown"
+                          onSelect={handleDateSelect}
+                          fromYear={1924}
+                          toYear={2028}
+                          defaultMonth={new Date(2000, 0)}
+                        />
+                      </motion.div>
+                    </PopoverContent>
+                  )}
+                </AnimatePresence>
+              </Popover>
+            </motion.div>
+            <ErrorAlert error={validationError} />
           </div>
         )
 
@@ -580,15 +545,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, onNext }: QuizQue
                 />
               </div>
             </div>
-            {validationError && (
-              <div className="text-red-600 text-sm mt-2">{validationError}</div>
-            )}
-            <div className="pt-4">
-              <Button onClick={validateAndProceed} className="w-full">
-                <span>Complete Quiz</span>
-                <CheckCircle className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <ErrorAlert error={validationError} />
           </div>
         )
 

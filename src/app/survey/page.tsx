@@ -64,6 +64,8 @@ export default function QuizPage() {
   const [quizData, setQuizData] = useState<QuizData>(initialQuizData)
   const [isComplete, setIsComplete] = useState(false)
   const [direction, setDirection] = useState<1 | -1>(1)
+  const [validationError, setValidationError] = useState<string>("")
+  const [shouldShake, setShouldShake] = useState(false)
 
   const totalSteps = 12
 
@@ -79,10 +81,126 @@ export default function QuizPage() {
         [field]: value,
       },
     }))
+    
+    // Clear validation errors when user makes changes
+    if (validationError) {
+      setValidationError("")
+    }
+    
+    // Auto-advance for radio button selections (not for input fields)
+    const isRadioQuestion = [0, 2, 3, 4, 5, 6, 7].includes(currentStep)
+    if (isRadioQuestion) {
+      setTimeout(() => {
+        // Auto-advance without validation since selecting a radio option IS the answer
+        setDirection(1)
+        setValidationError("") // Clear any existing errors
+        if (currentStep < totalSteps - 1) {
+          setCurrentStep((prev) => prev + 1)
+        } else {
+          setIsComplete(true)
+        }
+      }, 100) // Small delay to show selection feedback
+    }
+  }
+
+  const validateCurrentStep = () => {
+    // Skip validation for case 1 (Q2 - optional question)
+    if (currentStep === 1) {
+      setValidationError("") // Clear error for optional question
+      return true
+    }
+    
+    let errorMessage = ""
+    
+    // Validation logic for mandatory steps
+    switch (currentStep) {
+      case 0: // Vehicle type
+        if (!quizData.vehicleInfo.vehicleType?.trim()) {
+          errorMessage = "Please select a vehicle type"
+        }
+        break
+      case 2: // Budget
+        if (!quizData.vehicleInfo.budget?.trim()) {
+          errorMessage = "Please select your budget"
+        }
+        break
+      case 3: // Trade in
+        if (!quizData.vehicleInfo.tradeIn?.trim()) {
+          errorMessage = "Please select if you have a trade-in"
+        }
+        break
+      case 4: // Credit score
+        if (!quizData.vehicleInfo.creditScore?.trim()) {
+          errorMessage = "Please select your credit rating"
+        }
+        break
+      case 5: // Employment status
+        if (!quizData.vehicleInfo.employment?.trim()) {
+          errorMessage = "Please select your employment status"
+        }
+        break
+      case 6: // Income
+        if (!quizData.vehicleInfo.income?.trim()) {
+          errorMessage = "Please select your monthly income"
+        }
+        break
+      case 7: // Employment length
+        if (!quizData.vehicleInfo.employmentLength?.trim()) {
+          errorMessage = "Please select your employment length"
+        }
+        break
+      case 8: // Company information
+        if (!quizData.personalInfo.companyName?.trim() || !quizData.personalInfo.jobTitle?.trim()) {
+          errorMessage = "Please fill in both company name and job title"
+        }
+        break
+      case 9: // Address information
+        if (!quizData.personalInfo.streetAddress?.trim() || 
+            !quizData.personalInfo.city?.trim() || 
+            !quizData.personalInfo.province?.trim() || 
+            !quizData.personalInfo.postalCode?.trim()) {
+          errorMessage = "Please fill in all address fields"
+        }
+        break
+      case 10: // Date of birth
+        if (!quizData.personalInfo.dateOfBirth?.trim()) {
+          errorMessage = "Please enter your date of birth"
+        }
+        break
+      case 11: // Contact information
+        if (!quizData.personalInfo.fullName?.trim() || 
+            !quizData.personalInfo.phone?.trim() || 
+            !quizData.personalInfo.email?.trim()) {
+          errorMessage = "Please fill in all contact fields"
+        } else {
+          // Email validation
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          if (!emailRegex.test(quizData.personalInfo.email)) {
+            errorMessage = "Please enter a valid email address"
+          }
+        }
+        break
+    }
+    
+    // Only update the validation error if it's different from the current one
+    // This prevents unnecessary re-animations of the ErrorAlert component
+    if (errorMessage !== validationError) {
+      setValidationError(errorMessage)
+    }
+    
+    return errorMessage === ""
   }
 
   const nextStep = () => {
+    if (!validateCurrentStep()) {
+      // Trigger shake animation
+      setShouldShake(true)
+      setTimeout(() => setShouldShake(false), 600)
+      return
+    }
+    
     setDirection(1)
+    setValidationError("") // Clear error on successful validation
     if (currentStep < totalSteps - 1) {
       setCurrentStep((prev) => prev + 1)
     } else {
@@ -92,6 +210,7 @@ export default function QuizPage() {
 
   const prevStep = () => {
     setDirection(-1)
+    setValidationError("") // Clear error when going back
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1)
     }
@@ -124,6 +243,8 @@ export default function QuizPage() {
     }),
   }
 
+
+
   // Animation for progress bar and title
   const progressVariants = {
     hidden: { y: -30, opacity: 0 },
@@ -131,7 +252,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-slate-100 py-8 lg:pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-white to-slate-100 py-8">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header, Progress Bar, and Title together */}
         <motion.div
@@ -170,16 +291,21 @@ export default function QuizPage() {
               className="w-full"
               style={{ position: "relative" }}
             >
-              <Card className="shadow-lg">
-                <CardContent className="p-6 md:p-8">
-                  <QuizQuestion
-                    step={currentStep}
-                    quizData={quizData}
-                    updateQuizData={updateQuizData}
-                    onNext={nextStep}
-                  />
-                </CardContent>
-              </Card>
+              <motion.div
+                animate={shouldShake ? { x: [0, -10, 10, -10, 10, 0] } : {}}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+              >
+                <Card className="shadow-lg py-0">
+                  <CardContent className="p-6 md:p-8">
+                    <QuizQuestion
+                      step={currentStep}
+                      quizData={quizData}
+                      updateQuizData={updateQuizData}
+                      validationError={validationError}
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
             </motion.div>
           </AnimatePresence>
         </div>

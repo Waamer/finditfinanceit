@@ -288,7 +288,7 @@ function validateQuizData(data: QuizSubmission): { isValid: boolean; errors: str
   if (!data.personalInfo?.companyName?.trim()) errors.push('Company name is required')
   if (!data.personalInfo?.jobTitle?.trim()) errors.push('Job title is required')
   if (!data.vehicleInfo?.vehicleType?.trim()) errors.push('Vehicle type is required')
-  if (!data.vehicleInfo?.desiredVehicle?.trim()) errors.push('Desired vehicle is required')
+  // desiredVehicle is optional (Question 2 is optional)
   if (!data.vehicleInfo?.budget?.trim()) errors.push('Budget is required')
   if (!data.vehicleInfo?.tradeIn?.trim()) errors.push('Trade in preference is required')
   if (!data.vehicleInfo?.creditScore?.trim()) errors.push('Credit score is required')

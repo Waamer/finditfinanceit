@@ -8,19 +8,19 @@ import Image from 'next/image';
 
 const reviews = [
 	{
-		name: 'Dawn Mueller',
+		name: 'Dawn M',
 		text: `Ashley and Kal at FiFi went above and beyond when helping my daughter with her first car purchase. They were patient and at every inquiry they approached with care and consideration. They want their clients happy and go out of their way to accomplish this. I was so happy with their service that I myself bought a car from them and they treated me with the same patience and enthusiasm. I would recommend them to anyone for future car purchases.`,
 	},
 	{
-		name: 'Julie Gibbons',
+		name: 'Julie G',
 		text: `My girlfriend and I purchased a 2015 ram eco diesel from FiFi. The sales staff was friendly. This truck is beautiful. The truck did have some faults after picking it up and Ed and I are working at having the issues resolved as quickly as possible. For the most part they have been pretty good about the whole thing.`,
 	},
 	{
-		name: 'Canute Roberts',
+		name: 'Canute R',
 		text: `The current market for used cars is crazy in 2022. Despite that, these guys got me a good deal and got me driving a good car in no time. As a recent immigrant with almost no credit history I would recommend them. Talk to Ashlee she can help and her customer service is first class.`,
 	},
 	{
-		name: 'Lawrence Onu',
+		name: 'Lawrence O',
 		text: `Ashley is the absolute best! She is very professional and has helped me with the last two vehicles I have bought. Ashley always makes my car needs her priority.`,
 	},
 ];

@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react"
 import "./globals.css"
 import Nav from "@/components/nav";
+import { Toaster } from "@/components/ui/sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +20,6 @@ export const metadata: Metadata = {
   title: "FindItFinanceIt - Get Pre-Approved for Your Dream Car",
   description:
     "Get instant pre-approval for car financing. Quick application, competitive rates, and drive away today. Find your perfect vehicle financing solution.",
-  generator: "v0.app",
   keywords: "car financing, auto loans, vehicle financing, pre-approval, car loans, automotive financing",
   authors: [{ name: "FindItFinanceIt" }],
   openGraph: {
@@ -40,6 +40,7 @@ export default function RootLayout({
       <body className={`font-sans ${geistSans.variable} ${geistMono.variable}`}>
         <Nav />
         <Suspense fallback={null}>{children}</Suspense>
+        <Toaster />
         {/* <Analytics /> */}
       </body>
     </html>

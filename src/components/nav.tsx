@@ -89,9 +89,10 @@ export default function Nav() {
       transition={{ duration: 0.28, ease: "easeOut" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="Logo" width={175} height={80} className="h-10 w-auto" />
+        <div className="flex justify-between items-center h-20">
+          <Link href="/" className="flex -ml-4 sm:m-0">
+            <Image src="/logo.png" alt="Logo" width={175} height={80} className="h-16 w-auto" />
+            <span className="font-bold hidden lg:block text-xl mt-auto mb-1 -ml-4 text-foreground tracking-[-1px]">Find it Finance it</span>
           </Link>
           
           {/* Desktop Navigation */}

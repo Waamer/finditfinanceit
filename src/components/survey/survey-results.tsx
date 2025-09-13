@@ -2,9 +2,11 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Mail, Phone, ArrowRight, Loader2, BadgeCheck } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Mail, Phone, ArrowRight, Loader2, BadgeCheck, CheckCircle2, AlertCircle } from "lucide-react"
 import type { QuizData } from "@/app/survey/page"
 
 interface QuizResultsProps {
@@ -14,11 +16,9 @@ interface QuizResultsProps {
 export function QuizResults({ quizData }: QuizResultsProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const handleSubmit = async () => {
     setIsSubmitting(true)
-    setSubmitError(null)
 
     try {
       const response = await fetch("/api/submit-survey", {
@@ -37,9 +37,56 @@ export function QuizResults({ quizData }: QuizResultsProps) {
 
       setIsSubmitted(true)
       console.log("Quiz submitted successfully:", result)
+      
+      // Show success toast with alert
+      toast.custom(() => (
+        <Alert className="border-green-200 bg-green-50">
+          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <AlertTitle className="text-green-800">Application Submitted Successfully!</AlertTitle>
+          <AlertDescription className="text-green-700">
+            Our automotive financing specialists will review your information and contact you within 24 hours with personalized options.
+          </AlertDescription>
+        </Alert>
+      ), {
+        duration: 8000,
+      })
     } catch (error) {
       console.error("Error submitting quiz:", error)
-      setSubmitError(error instanceof Error ? error.message : "An unexpected error occurred")
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred"
+      
+      // Show error toast with alert and retry action
+      toast.custom(() => (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Submission Failed</AlertTitle>
+          <AlertDescription>
+            <p className="mb-3">{errorMessage}</p>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 bg-background border-destructive/30 text-destructive hover:bg-destructive/10"
+                onClick={() => {
+                  toast.dismiss()
+                  handleSubmit()
+                }}
+              >
+                Try Again
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                onClick={() => toast.dismiss()}
+              >
+                Dismiss
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      ), {
+        duration: Infinity, // Keep open until user dismisses
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -75,48 +122,6 @@ export function QuizResults({ quizData }: QuizResultsProps) {
 
             <CardContent className="p-6 sm:p-8 pt-2">
               <div className="space-y-6">
-                {/* Success Message */}
-                {isSubmitted && (
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="bg-green-50 border border-green-200 rounded-lg p-6 text-center"
-                  >
-                    <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-green-800 mb-2">Submission Successful!</h3>
-                    <p className="text-green-700">
-                      Our automotive financing specialists will review your information and contact you within 24 hours with personalized options tailored to your needs.
-                    </p>
-                  </motion.div>
-                )}
-
-                {/* Error Message */}
-                {submitError && (
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"
-                  >
-                    <h3 className="text-lg font-semibold text-red-800 mb-2">Submission Error</h3>
-                    <p className="text-red-700 mb-4">{submitError}</p>
-                    <Button
-                      onClick={handleSubmit}
-                      variant="outline"
-                      className="border-red-300 text-red-700 hover:bg-red-50 bg-transparent"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Retrying...
-                        </>
-                      ) : (
-                        "Try Again"
-                      )}
-                    </Button>
-                  </motion.div>
-                )}
-
                 {/* Personal Summary */}
                 <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
                   <h3 className="text-xl font-semibold text-foreground mb-3">Your Information Summary</h3>
