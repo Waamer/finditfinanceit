@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react"
 import { QuizQuestion } from "@/components/survey/survey-question"
 import { QuizResults } from "@/components/survey/survey-results"
+import Image from "next/image"
 
 export interface QuizData {
   personalInfo: {
@@ -308,6 +309,18 @@ export default function QuizPage() {
               </motion.div>
             </motion.div>
           </AnimatePresence>
+        </div>
+
+        {/* Logo Bar */}
+        <div className="flex justify-center mt-8 mb-4 lg:mb-32">
+          <Image 
+            src="/logobar.png" 
+            alt="Trusted partners - Norton by Symantec, McAfee Secure, South West Auto Group, Google Reviews" 
+            width={800}
+            height={200}
+            className="max-w-full h-auto"
+            priority={false}
+          />
         </div>
 
         {/* Mobile Navigation - visible only on small screens */}

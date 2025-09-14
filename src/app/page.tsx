@@ -9,6 +9,7 @@ import Image from "next/image"
 import TextRotate from "@/components/fancy/text/text-rotate"
 import Footer from "@/components/footer"
 import { motion } from "motion/react"
+import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button"
 import {
   Carousel,
   CarouselContent,
@@ -83,7 +84,7 @@ export default function HomePage() {
             <motion.h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance tracking-[-2px]" {...fadeInUp}>
               Buy a Vehicle
               <br />
-              <span className="inline-flex items-center">
+              <span className="inline-flex items-center whitespace-nowrap">
                 From Your&nbsp;
                 <TextRotate
                   texts={["Phone", "Laptop", "Desktop", "Tablet"]}
@@ -108,7 +109,12 @@ export default function HomePage() {
             </motion.p>
             <motion.div {...fadeInUp} transition={{ delay: 0.4 }}>
               <Link href="/survey">
-                <Button className="bg-primary-foreground text-xl sm:text-2xl sm:py-6.5 sm:px-5.5 text-primary hover:bg-primary-foreground/85">
+                {/* Show Interactive Hover Button on lg+ screens */}
+                <InteractiveHoverButton className="hidden lg:inline-flex bg-white text-primary border-white/20 text-xl py-4 px-6 hover:bg-black/60 hover:text-white transition-colors duration-300 !rounded-lg">
+                  GET PRE-APPROVED
+                </InteractiveHoverButton>
+                {/* Show original Button on smaller screens */}
+                <Button className="lg:hidden bg-primary-foreground text-xl sm:text-2xl md:text-3xl py-8 px-6 text-primary hover:bg-primary-foreground/85">
                   GET PRE-APPROVED
                 </Button>
               </Link>
@@ -182,6 +188,51 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Why Fifi is #1 Section */}
+      <section className="py-20 bg-primary text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div className="text-center" {...fadeInUp}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-balance">
+              Find out why Fifi is Ontario&apos;s #1 Leading Auto Approvers
+            </h2>
+            
+            <motion.div
+              className="grid md:grid-cols-3 gap-8 mb-12"
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+            >
+              <motion.div variants={fadeInUp} className="text-center">
+                <div className="text-4xl md:text-5xl font-bold mb-2">100s</div>
+                <p className="text-xl text-white/90">Happy Customers Per Month</p>
+              </motion.div>
+              
+              <motion.div variants={fadeInUp} className="text-center">
+                <div className="text-4xl md:text-5xl font-bold mb-2">0</div>
+                <p className="text-xl text-white/90">Hassle, 0 Down Options</p>
+              </motion.div>
+              
+              <motion.div variants={fadeInUp} className="text-center">
+                <div className="text-4xl md:text-5xl font-bold mb-2">#1</div>
+                <p className="text-xl text-white/90">Auto Approver in Ontario</p>
+              </motion.div>
+            </motion.div>
+
+            <motion.div 
+              className="bg-white/10 rounded-lg p-8 backdrop-blur-sm"
+              {...fadeInUp}
+              transition={{ delay: 0.4 }}
+            >
+              <h3 className="text-2xl md:text-3xl font-bold mb-4">Our Motto</h3>
+              <p className="text-xl md:text-2xl text-white/95 font-medium italic">
+                &ldquo;If you like it, we&apos;ll get it done&rdquo;
+              </p>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Confidence Section */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -216,8 +267,8 @@ export default function HomePage() {
             </motion.div>
 
             <motion.div
-              className="relative"
-              initial={{ opacity: 0, x: 50 }}
+              className="relative overflow-hidden"
+              initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}

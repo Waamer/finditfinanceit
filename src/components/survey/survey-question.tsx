@@ -66,7 +66,7 @@ export function QuizQuestion({ step, quizData, updateQuizData, validationError }
                 handleInputChange("vehicleType", value, "vehicleInfo")
               }}
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[
                   { value: "Car", icon: "🚗", bgColor: "bg-blue-50", borderColor: "border-blue-200", hoverColor: "hover:bg-blue-100", selected: "bg-blue-200/85 shadow-lg" },
                   { value: "SUV", icon: "🚙", bgColor: "bg-green-50", borderColor: "border-green-200", hoverColor: "hover:bg-green-100", selected: "bg-green-200/85 shadow-lg" },
