@@ -28,6 +28,9 @@ interface QuizSubmission {
     income: string
     desiredVehicle: string
   }
+  documents: {
+    payStub: string | null
+  }
 }
 
 // --- GOOGLE SHEETS SETUP ---
@@ -49,12 +52,13 @@ function getGoogleAuth() {
 
 // --- FLATTEN KEYS, REMOVE PREFIXES, REMOVE firstName/lastName ---
 function flattenKeysNoPrefix(obj: QuizSubmission): string[] {
-  // Only include keys from personalInfo (excluding firstName/lastName) and vehicleInfo
+  // Only include keys from personalInfo (excluding firstName/lastName), vehicleInfo, and documents
   const personalKeys = Object.keys(obj.personalInfo).filter(
     (k) => k !== 'firstName' && k !== 'lastName'
   )
   const vehicleKeys = Object.keys(obj.vehicleInfo)
-  return [...personalKeys, ...vehicleKeys]
+  const documentKeys = Object.keys(obj.documents)
+  return [...personalKeys, ...vehicleKeys, ...documentKeys]
 }
 
 // --- FLATTEN VALUES, MATCHING THE FLAT KEYS ---
@@ -67,6 +71,10 @@ function flattenValuesNoPrefix(obj: QuizSubmission, keys: string[]): (string | n
     if (key in obj.vehicleInfo) {
       // @ts-expect-error: dynamic key
       return obj.vehicleInfo[key] ?? ''
+    }
+    if (key in obj.documents) {
+      // @ts-expect-error: dynamic key
+      return obj.documents[key] ?? ''
     }
     return ''
   })
@@ -109,6 +117,18 @@ async function appendToGoogleSheet(data: QuizSubmission) {
     if (header === 'Submitted At') {
       return DateTime.now().setZone('America/Toronto').toFormat('yyyy-MM-dd hh:mm:ss a')
     }
+    // Special handling for payStub - Google Sheets can't display base64 images directly
+    if (header === 'payStub') {
+      if (!data.documents.payStub) return 'Not provided';
+      
+      try {
+        const payStubData = JSON.parse(data.documents.payStub);
+        return `UPLOADED: ${payStubData.filename} (${Math.round(payStubData.size / 1024)}KB) - See email for image`;
+      } catch {
+        // Fallback for old format
+        return 'Uploaded - See email for image';
+      }
+    }
     // Use flat value lookup
     return flattenValuesNoPrefix(data, [header])[0]
   })
@@ -139,7 +159,7 @@ function createTransporter() {
 
 // --- Admin Email HTML (from email.tsx, adapted) ---
 function generateAdminNotificationHTML(quizData: QuizSubmission) {
-  const { personalInfo, vehicleInfo } = quizData
+  const { personalInfo, vehicleInfo, documents } = quizData
 
   return `
     <!DOCTYPE html>
@@ -250,6 +270,42 @@ function generateAdminNotificationHTML(quizData: QuizSubmission) {
             </div>
           </div>
           <div class="section">
+            <h2>Documents</h2>
+            <div class="info-grid">
+              <div class="info-item full-width">
+                <strong>Pay Stub:</strong><br>
+                ${documents.payStub ? (() => {
+                  try {
+                    const payStubData = JSON.parse(documents.payStub);
+                    return `
+                      <div style="margin-top: 10px;">
+                        <p style="margin: 5px 0; font-size: 12px; color: #666;">
+                          File: ${payStubData.filename} (${Math.round(payStubData.size / 1024)}KB)
+                        </p>
+                        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 4px; background: #f9f9f9;">
+                          <img src="cid:paystub" alt="Pay Stub" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+                        </div>
+                      </div>
+                    `;
+                  } catch {
+                    // Fallback for old format - check if it's base64
+                    if (documents.payStub.startsWith('data:image')) {
+                      return `
+                        <div style="margin-top: 10px;">
+                          <p style="margin: 5px 0; font-size: 12px; color: #666;">Pay Stub Image</p>
+                          <div style="border: 1px solid #ddd; padding: 10px; border-radius: 4px; background: #f9f9f9;">
+                            <img src="cid:paystub" alt="Pay Stub" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+                          </div>
+                        </div>
+                      `;
+                    }
+                    return `<p>Pay stub uploaded - Unable to display image</p>`;
+                  }
+                })() : 'Not provided'}
+              </div>
+            </div>
+          </div>
+          <div class="section">
             <p><strong>Quiz completed:</strong> ${DateTime.now().setZone('America/Toronto').toFormat('yyyy-MM-dd hh:mm:ss a')}</p>
             <p><strong>Source:</strong> FindItFinanceIt Website</p>
           </div>
@@ -264,12 +320,66 @@ async function sendAdminNotification(quizData: QuizSubmission) {
   if (!process.env.ADMIN_EMAIL) return false
   const transporter = createTransporter()
   const htmlContent = generateAdminNotificationHTML(quizData)
-  await transporter.sendMail({
+  
+  // Prepare email options
+  const mailOptions: {
+    from: string | undefined;
+    to: string | undefined;
+    subject: string;
+    html: string;
+    attachments?: Array<{
+      filename: string;
+      content: Buffer;
+      contentType: string;
+      cid: string;
+    }>;
+  } = {
     from: process.env.SMTP_USER,
     to: process.env.ADMIN_EMAIL,
     subject: `New FindItFinanceIt Survey Response: ${quizData.personalInfo.fullName}`,
     html: htmlContent,
-  })
+  }
+  
+  // If there's a pay stub, attach it as an email attachment
+  if (quizData.documents.payStub) {
+    try {
+      let imageData: string;
+      let filename: string;
+      
+      // Try to parse as JSON first (new format)
+      try {
+        const payStubData = JSON.parse(quizData.documents.payStub);
+        imageData = payStubData.original || payStubData.compressed;
+        filename = payStubData.filename || 'paystub.jpg';
+      } catch {
+        // Fallback for old format
+        imageData = quizData.documents.payStub;
+        filename = 'paystub.jpg';
+      }
+      
+      // Only proceed if we have a valid base64 image
+      if (imageData && imageData.startsWith('data:image')) {
+        // Extract the base64 data and mime type
+        const matches = imageData.match(/^data:([^;]+);base64,(.+)$/);
+        if (matches) {
+          const mimeType = matches[1];
+          const base64Data = matches[2];
+          
+          mailOptions.attachments = [{
+            filename: filename,
+            content: Buffer.from(base64Data, 'base64'),
+            contentType: mimeType,
+            cid: 'paystub' // Content-ID for referencing in HTML
+          }];
+        }
+      }
+    } catch (error) {
+      console.error('Error processing pay stub attachment:', error);
+      // Continue without attachment if there's an error
+    }
+  }
+  
+  await transporter.sendMail(mailOptions)
   return true
 }
 
@@ -295,6 +405,7 @@ function validateQuizData(data: QuizSubmission): { isValid: boolean; errors: str
   if (!data.vehicleInfo?.employment?.trim()) errors.push('Employment status is required')
   if (!data.vehicleInfo?.employmentLength?.trim()) errors.push('Employment length is required')
   if (!data.vehicleInfo?.income?.trim()) errors.push('Monthly income is required')
+  // Documents are optional, so no validation needed
   if (data.personalInfo?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.personalInfo.email)) {
     errors.push('Invalid email format')
   }

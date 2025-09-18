@@ -147,6 +147,17 @@ export function QuizResults({ quizData }: QuizResultsProps) {
                       <p><strong>Employment Status:</strong> {quizData.vehicleInfo.employment}</p>
                       <p><strong>Employment Length:</strong> {quizData.vehicleInfo.employmentLength}</p>
                       <p><strong>Monthly Income:</strong> {quizData.vehicleInfo.income}</p>
+                      <p><strong>Pay Stub:</strong> {
+                        (() => {
+                          if (!quizData.documents?.payStub) return 'Not provided';
+                          try {
+                            const payStubData = JSON.parse(quizData.documents.payStub);
+                            return `${payStubData.filename} (${Math.round(payStubData.size / 1024)}KB)`;
+                          } catch {
+                            return 'Uploaded';
+                          }
+                        })()
+                      }</p>
                     </div>
                   </div>
                 </motion.div>

@@ -33,6 +33,9 @@ export interface QuizData {
     income: string
     desiredVehicle: string
   }
+  documents: {
+    payStub: string | null // Will store the uploaded file URL/path
+  }
 }
 
 const initialQuizData: QuizData = {
@@ -58,6 +61,9 @@ const initialQuizData: QuizData = {
     income: "",
     desiredVehicle: "",
   },
+  documents: {
+    payStub: null,
+  },
 }
 
 export default function QuizPage() {
@@ -68,7 +74,7 @@ export default function QuizPage() {
   const [validationError, setValidationError] = useState<string>("")
   const [shouldShake, setShouldShake] = useState(false)
 
-  const totalSteps = 12
+  const totalSteps = 13
 
   const updateQuizData = (
     section: keyof QuizData,
@@ -88,7 +94,7 @@ export default function QuizPage() {
       setValidationError("")
     }
     
-    // Auto-advance for radio button selections (not for input fields)
+    // Auto-advance for radio button selections (not for input fields or file uploads)
     const isRadioQuestion = [0, 2, 3, 4, 5, 6, 7].includes(currentStep)
     if (isRadioQuestion) {
       setTimeout(() => {
@@ -180,6 +186,9 @@ export default function QuizPage() {
             errorMessage = "Please enter a valid email address"
           }
         }
+        break
+      case 12: // Pay stub upload (optional)
+        // This is optional, so no validation needed
         break
     }
     

@@ -7,10 +7,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+
 import { AddressAutocomplete } from "@/components/survey/address-autocomplete"
 import { motion, AnimatePresence } from "framer-motion"
-import { AlertCircle, ChevronDownIcon } from "lucide-react"
+import { AlertCircle, ChevronDownIcon, CloudUpload, FileText, X, Check, Upload } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { useState } from "react"
+import NextImage from "next/image"
 import type { QuizData } from "@/app/survey/page"
 
 interface QuizQuestionProps {
@@ -20,12 +23,333 @@ interface QuizQuestionProps {
   validationError?: string
 }
 
+interface PayStubUploaderProps {
+  currentPayStub: string | null
+  onFileChange: (payStubData: string) => void
+  onFileRemove: () => void
+}
+
+function PayStubUploader({ currentPayStub, onFileChange, onFileRemove }: PayStubUploaderProps) {
+  const [isDragging, setIsDragging] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+
+  // Parse current pay stub data if it exists
+  const parsePayStubData = (payStubData: string | null) => {
+    if (!payStubData) return null
+    try {
+      return JSON.parse(payStubData)
+    } catch {
+      // Old format fallback
+      if (payStubData.startsWith('data:image')) {
+        return { original: payStubData, filename: 'paystub.jpg', size: 0 }
+      }
+      return null
+    }
+  }
+
+  const currentFile = parsePayStubData(currentPayStub)
+
+  const handleFileUpload = async (file: File) => {
+    setIsUploading(true)
+    setUploadProgress(0)
+
+    try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return 90
+          }
+          return prev + 15
+        })
+      }, 100)
+
+      // Convert file to base64
+      const base64String = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+
+      // Create compressed version
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      const img = new Image()
+
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          const maxSize = 300
+          let { width, height } = img
+
+          if (width > height) {
+            if (width > maxSize) {
+              height = (height * maxSize) / width
+              width = maxSize
+            }
+          } else {
+            if (height > maxSize) {
+              width = (width * maxSize) / height
+              height = maxSize
+            }
+          }
+
+          canvas.width = width
+          canvas.height = height
+          ctx?.drawImage(img, 0, 0, width, height)
+          resolve()
+        }
+        img.src = base64String
+      })
+
+      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.3)
+
+      // Complete progress
+      setUploadProgress(100)
+      
+      setTimeout(() => {
+        const payStubData = JSON.stringify({
+          original: base64String,
+          compressed: compressedBase64,
+          filename: file.name,
+          size: file.size
+        })
+
+        onFileChange(payStubData)
+        setIsUploading(false)
+        setUploadProgress(0)
+      }, 300)
+
+    } catch (error) {
+      console.error('Upload failed:', error)
+      setIsUploading(false)
+      setUploadProgress(0)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    
+    const files = Array.from(e.dataTransfer.files)
+    const validFile = files.find(file => 
+      file.type.startsWith('image/') || file.type === 'application/pdf'
+    )
+    
+    if (validFile && validFile.size <= 10 * 1024 * 1024) {
+      handleFileUpload(validFile)
+    }
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleFileUpload(file)
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
+      className="w-full"
+    >
+      {!currentFile ? (
+        <motion.div
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          className={cn(
+            "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300",
+            isDragging 
+              ? "border-primary bg-primary/5 scale-[1.02]" 
+              : "border-muted-foreground/20 hover:border-primary/40 hover:bg-primary/2",
+            isUploading && "pointer-events-none"
+          )}
+        >
+          <input
+            type="file"
+            accept="image/*,.pdf"
+            onChange={handleFileSelect}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            disabled={isUploading}
+          />
+          
+          <motion.div
+            animate={{ 
+              scale: isDragging ? 1.1 : 1,
+              rotate: isDragging ? 5 : 0 
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="flex flex-col items-center gap-4"
+          >
+            {isUploading ? (
+              <>
+                <div className="relative">
+                  <Upload className="size-12 text-primary animate-bounce" />
+                  <motion.div
+                    className="absolute -bottom-2 -right-2 size-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    {uploadProgress}
+                  </motion.div>
+                </div>
+                <div className="space-y-2">
+                  <p className="font-semibold text-foreground">Uploading...</p>
+                  <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-primary rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${uploadProgress}%` }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <CloudUpload className={cn(
+                  "size-12 transition-colors duration-300",
+                  isDragging ? "text-primary" : "text-muted-foreground"
+                )} />
+                <div className="space-y-2">
+                  <p className="font-semibold text-foreground">
+                    {isDragging ? "Drop your file here!" : "Upload Pay Stub"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Click here or drag and drop your pay stub
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="px-2 py-1 bg-muted rounded">PDF</span>
+                    <span className="px-2 py-1 bg-muted rounded">PNG</span>
+                    <span className="px-2 py-1 bg-muted rounded">JPG</span>
+                    <span className="text-muted-foreground/60">• Max 10MB</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </motion.div>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800 rounded-xl p-6"
+        >
+          <div className="flex items-start gap-4 flex-col sm:flex-row">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+              className="flex-shrink-0"
+            >
+              {currentFile.original?.startsWith('data:image') ? (
+                <div className="relative">
+                  <NextImage
+                    src={currentFile.original}
+                    alt="Pay stub preview"
+                    width={64}
+                    height={64}
+                    className="size-16 object-cover rounded-lg border-2 border-green-200 dark:border-green-700"
+                  />
+                  <div className="absolute -top-1 -right-1 size-6 bg-green-500 text-white rounded-full flex items-center justify-center">
+                    <Check className="size-3" />
+                  </div>
+                </div>
+              ) : (
+                <div className="size-16 bg-green-100 dark:bg-green-900/30 rounded-lg border-2 border-green-200 dark:border-green-700 flex items-center justify-center">
+                  <FileText className="size-8 text-green-600 dark:text-green-400" />
+                  <div className="absolute -top-1 -right-1 size-6 bg-green-500 text-white rounded-full flex items-center justify-center">
+                    <Check className="size-3" />
+                  </div>
+                </div>
+              )}
+            </motion.div>
+            
+            <div className="flex-1 min-w-0">
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+              >
+                <p className="font-semibold text-foreground truncate">
+                  {currentFile.filename}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {(currentFile.size / (1024 * 1024)).toFixed(2)} MB • Uploaded successfully
+                </p>
+                <div className="flex items-center gap-1 mt-1">
+                  <Check className="size-3 text-green-600" />
+                  <span className="text-xs text-green-600 font-medium">Ready for processing</span>
+                </div>
+              </motion.div>
+            </div>
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onFileRemove}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors duration-200"
+              >
+                <X className="size-4" />
+              </Button>
+            </motion.div>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            transition={{ duration: 0.4, delay: 0.4 }}
+            className="mt-4 pt-4 border-t border-green-200 dark:border-green-800"
+          >
+            <div className="flex items-center justify-between text-sm flex-col text-center sm:text-left sm:flex-row gap-2">
+              <span className="text-green-700 dark:text-green-300 font-medium">
+                ✅ File uploaded and ready for review
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.accept = 'image/*,.pdf'
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0]
+                    if (file) handleFileUpload(file)
+                  }
+                  input.click()
+                }}
+                className="text-xs h-7 border-green-300 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-950/20"
+              >
+                Replace File
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </motion.div>
+  )
+}
+
 export function QuizQuestion({ step, quizData, updateQuizData, validationError }: QuizQuestionProps) {
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   
   const handleInputChange = (field: string, value: string | number | boolean, section: keyof QuizData) => {
     updateQuizData(section, field, value)
   }
+
+
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
@@ -545,6 +869,52 @@ export function QuizQuestion({ step, quizData, updateQuizData, validationError }
                 />
               </div>
             </div>
+            <ErrorAlert error={validationError} />
+          </div>
+        )
+
+      case 12:
+        return (
+          <div className="space-y-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center"
+            >
+              <motion.h2 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="text-2xl font-semibold text-foreground mb-2"
+              >
+                ⚡ Speed Up Your Approval!
+              </motion.h2>
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-muted-foreground text-lg mb-6"
+              >
+                Upload a recent pay stub for faster processing (Optional)
+              </motion.p>
+            </motion.div>
+            
+            <PayStubUploader 
+              currentPayStub={quizData.documents.payStub}
+              onFileChange={(payStubData) => handleInputChange("payStub", payStubData, "documents")}
+              onFileRemove={() => handleInputChange("payStub", "", "documents")}
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="text-center text-sm text-muted-foreground"
+            >
+              <p>💡 This step is optional. You can skip if you prefer to.</p>
+            </motion.div>
+            
             <ErrorAlert error={validationError} />
           </div>
         )
