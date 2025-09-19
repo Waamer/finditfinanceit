@@ -39,21 +39,22 @@ export default function FAQPage() {
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-white to-slate-200 dark:from-neutral-900 dark:to-neutral-950">
             <main className="flex-1 flex flex-col items-center px-4 py-10 md:pt-16 md:pb-36">
                 <motion.h1
-                    initial={{ opacity: 0, y: -30 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    transition={{ duration: 0.4 }}
                     className="text-3xl md:text-4xl font-bold mb-10 text-primary dark:text-primary-foreground text-center"
                 >
                     Frequently Asked Questions
                 </motion.h1>
                 <motion.div
                     initial="hidden"
-                    animate="visible"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-50px" }}
                     variants={{
                         hidden: {},
                         visible: {
                             transition: {
-                                staggerChildren: 0.15,
+                                staggerChildren: 0.1,
                             },
                         },
                     }}
@@ -69,13 +70,12 @@ export default function FAQPage() {
                                     <motion.div
                                         key={faq.question}
                                         variants={{
-                                            hidden: { opacity: 0, y: 40 },
-                                            visible: { opacity: 1, y: 0 },
+                                            hidden: { opacity: 0, y: 30 },
+                                            visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
                                         }}
-                                        transition={{ duration: 0.5, ease: 'easeOut' }}
                                     >
-                                        <AccordionItem value={`faq-${i}`} className={`border bg-white dark:bg-neutral-900/90 shadow-md ${rounded}`}>
-                                            <AccordionTrigger className="text-lg md:text-xl font-semibold px-6 py-4">
+                                        <AccordionItem value={`faq-${i}`} className={`border bg-white dark:bg-neutral-900/90 shadow-md hover:shadow-lg transition-shadow duration-200 ${rounded}`}>
+                                            <AccordionTrigger className="text-lg md:text-xl font-semibold px-6 py-4 hover:bg-slate-50 dark:hover:bg-neutral-800/50 transition-colors duration-200">
                                                 {faq.question}
                                             </AccordionTrigger>
                                             <AccordionContent className="px-6 pb-6 text-base md:text-lg text-muted-foreground leading-relaxed">

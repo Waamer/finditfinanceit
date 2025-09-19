@@ -8,7 +8,7 @@ import Link from "next/link"
 import Image from "next/image"
 import TextRotate from "@/components/fancy/text/text-rotate"
 import Footer from "@/components/footer"
-import { motion } from "motion/react"
+import { motion } from "framer-motion"
 import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button"
 import {
   Carousel,
@@ -19,18 +19,11 @@ import {
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
 
+// Animation variants for better performance and consistency
 const fadeInUp = {
-  initial: { opacity: 0, y: 60 },
+  initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-}
-
-const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
+  transition: { duration: 0.4 },
 }
 
 const reviews = [
@@ -126,7 +119,7 @@ export default function HomePage() {
             className="flex justify-center items-end space-x-4 md:space-x-8"
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
             <div className="w-full">
               <Image src="/cars3.png" alt="Red Sedan" width={1000} height={400} className="w-full h-auto" />
@@ -138,7 +131,13 @@ export default function HomePage() {
       {/* How It Works Section */}
       <section className="py-20 bg-neutral-warm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div className="text-center mb-16" {...fadeInUp}>
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4 }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-balance">How It Works?</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
               Get approved by filling out our instant pre-qualification form
@@ -147,12 +146,25 @@ export default function HomePage() {
 
           <motion.div
             className="grid gap-10 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
           >
-            <motion.div variants={fadeInUp} className="flex flex-col">
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+              }}
+              className="flex flex-col"
+            >
               <div className="mb-5 flex size-16 items-center justify-center rounded-full bg-primary/[6%]">
                 <Timer className="w-16 h-16 text-primary p-3" />
               </div>
@@ -162,7 +174,13 @@ export default function HomePage() {
               </p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="flex flex-col">
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+              }}
+              className="flex flex-col"
+            >
               <div className="mb-5 flex size-16 items-center justify-center rounded-full bg-primary/[6%]">
                 <Car className="w-16 h-16 text-primary p-3" />
               </div>
@@ -172,7 +190,13 @@ export default function HomePage() {
               </p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="flex flex-col">
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+              }}
+              className="flex flex-col"
+            >
               <div className="mb-5 flex size-16 items-center justify-center rounded-full bg-primary/[6%]">
                 <DollarSignIcon className="w-16 h-16 text-primary p-3" />
               </div>
@@ -191,29 +215,60 @@ export default function HomePage() {
       {/* Why Fifi is #1 Section */}
       <section className="py-20 bg-primary text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div className="text-center" {...fadeInUp}>
+          <motion.div 
+            className="text-center"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4 }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-balance">
               Find out why Fifi is Ontario&apos;s #1 Leading Auto Approvers
             </h2>
             
             <motion.div
               className="grid md:grid-cols-3 gap-8 mb-12"
-              variants={staggerContainer}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: {
+                    staggerChildren: 0.1,
+                  },
+                },
+              }}
             >
-              <motion.div variants={fadeInUp} className="text-center">
+              <motion.div 
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+                }}
+                className="text-center"
+              >
                 <div className="text-4xl md:text-5xl font-bold mb-2">100s</div>
                 <p className="text-xl text-white/90">Happy Customers Per Month</p>
               </motion.div>
               
-              <motion.div variants={fadeInUp} className="text-center">
+              <motion.div 
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+                }}
+                className="text-center"
+              >
                 <div className="text-4xl md:text-5xl font-bold mb-2">0</div>
                 <p className="text-xl text-white/90">Hassle, 0 Down Options</p>
               </motion.div>
               
-              <motion.div variants={fadeInUp} className="text-center">
+              <motion.div 
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+                }}
+                className="text-center"
+              >
                 <div className="text-4xl md:text-5xl font-bold mb-2">#1</div>
                 <p className="text-xl text-white/90">Auto Approver in Ontario</p>
               </motion.div>
@@ -221,8 +276,10 @@ export default function HomePage() {
 
             <motion.div 
               className="bg-white/10 rounded-lg p-8 backdrop-blur-sm"
-              {...fadeInUp}
-              transition={{ delay: 0.4 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.4, delay: 0.2 }}
             >
               <h3 className="text-2xl md:text-3xl font-bold mb-4">Our Motto</h3>
               <p className="text-xl md:text-2xl text-white/95 font-medium italic">
@@ -237,7 +294,12 @@ export default function HomePage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div {...fadeInUp}>
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.4 }}
+            >
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">SHOP FOR A CAR WITH CONFIDENCE</h2>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
@@ -268,10 +330,10 @@ export default function HomePage() {
 
             <motion.div
               className="relative overflow-hidden"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.4 }}
             >
               <Image
                 src="/car.jpg"
@@ -288,7 +350,13 @@ export default function HomePage() {
       {/* Why Choose Us Section */}
       <section className="py-20 bg-neutral-warm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div className="text-center mb-16" {...fadeInUp}>
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4 }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-balance">Why Choose Us?</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
               From start to finish there&apos;s no better and more transparent way to buy a car
@@ -297,12 +365,24 @@ export default function HomePage() {
 
           <motion.div
             className="grid md:grid-cols-3 gap-8"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
           >
-            <motion.div variants={fadeInUp}>
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+              }}
+            >
               <Card className="text-center p-6 h-full">
                 <CardContent className="pt-6">
                   <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -316,7 +396,12 @@ export default function HomePage() {
               </Card>
             </motion.div>
 
-            <motion.div variants={fadeInUp}>
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+              }}
+            >
               <Card className="text-center p-6 h-full">
                 <CardContent className="pt-6">
                   <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -330,7 +415,12 @@ export default function HomePage() {
               </Card>
             </motion.div>
 
-            <motion.div variants={fadeInUp}>
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+              }}
+            >
               <Card className="text-center p-6 h-full">
                 <CardContent className="pt-6">
                   <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -350,7 +440,13 @@ export default function HomePage() {
       {/* Testimonials Section */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div className="text-center mb-16" {...fadeInUp}>
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4 }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-balance">What Our Clients Say</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
               Find out why so many Canadians choose us to find their vehicle
@@ -359,10 +455,10 @@ export default function HomePage() {
 
           <motion.div
             className="flex justify-center"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: 0.1 }}
           >
             <Carousel
               opts={{
@@ -387,8 +483,8 @@ export default function HomePage() {
                       transition={{ duration: 0.5, ease: 'easeOut' }}
                       className="p-2 h-full"
                     >
-                      <div className="relative bg-white dark:bg-neutral-900/90 rounded-xl shadow-lg border border-slate-200 dark:border-neutral-800 p-7 flex flex-col h-full">
-                        <div className="flex items-center justify-between mb-2">
+                      <div className="relative bg-white dark:bg-neutral-900/90 rounded-xl shadow-lg border border-slate-200 dark:border-neutral-800 p-4 sm:p-7 flex flex-col h-full">
+                        <div className="flex items-center justify-between mb-1 sm:mb-2">
                           <StarRow />
                           <Image src='/logos/GoogleLogo.png' alt='Google Logo' width={28} height={28} className='ml-2' />
                         </div>
@@ -409,7 +505,12 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-16 bg-primary text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div {...fadeInUp}>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4 }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
               Uncertain about which car suits you best?
             </h2>
@@ -427,7 +528,12 @@ export default function HomePage() {
       {/* Final CTA Section */}
       <section className="py-20 bg-neutral-warm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div {...fadeInUp}>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4 }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">Find Your Car Deal Today</h2>
             <p className="text-lg mb-8 text-muted-foreground max-w-2xl mx-auto text-pretty">
               From start to finish there&apos;s no better and more transparent way to buy a car. Find out if you qualify in

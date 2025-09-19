@@ -33,17 +33,17 @@ export default function Footer() {
               <h4 className="font-semibold mb-4">Important Links</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="#" className="hover:text-white/50 transition-colors">
-                    Customer Service
+                  <Link href="/reviews" className="hover:text-white/50 transition-colors">
+                    Customer Reviews
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white/50 transition-colors">
+                  <Link href="/privacy-policy" className="hover:text-white/50 transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white/50 transition-colors">
+                  <Link href="/terms-conditions" className="hover:text-white/50 transition-colors">
                     Terms of Use
                   </Link>
                 </li>
@@ -87,7 +87,7 @@ export default function Footer() {
 
           <div className="border-t border-background/20 mt-8 pt-8 text-center text-sm">
             <p>
-              &copy; 2025 Find it Finance It • All rights reserved • Site Map
+              &copy; 2025 Find it Finance It • All rights reserved • <Link href="/site-map" className="hover:text-white/50 transition-colors">Site Map</Link>
             </p>
           </div>
         </div>

@@ -52,35 +52,36 @@ export default function ReviewsPage() {
 		<div className="min-h-screen flex flex-col bg-gradient-to-br from-white to-slate-200 dark:from-neutral-900 dark:to-neutral-950">
 			<main className="flex-1 flex flex-col items-center px-4 py-10 md:py-16">
 				<motion.h1
-					initial={{ opacity: 0, y: -30 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, ease: 'easeOut' }}
+					initial={{ opacity: 0, y: 20 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, margin: "-50px" }}
+					transition={{ duration: 0.3, ease: "easeOut" }}
 					className="text-3xl md:text-4xl font-bold mb-10 text-primary dark:text-primary-foreground text-center"
 				>
 					Reviews
 				</motion.h1>
 				<motion.div
 					initial="hidden"
-					animate="visible"
+					whileInView="visible"
+					viewport={{ once: true, margin: "-50px" }}
 					variants={{
 						hidden: {},
 						visible: {
 							transition: {
-								staggerChildren: 0.15,
+								staggerChildren: 0.05,
 							},
 						},
 					}}
 					className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-8"
 				>
-								{reviews.map((review) => (
-									<motion.div
-										key={review.name}
+					{reviews.map((review) => (
+						<motion.div
+							key={review.name}
 							variants={{
-								hidden: { opacity: 0, y: 40 },
-								visible: { opacity: 1, y: 0 },
+								hidden: { opacity: 0, y: 20 },
+								visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
 							}}
-							transition={{ duration: 0.5, ease: 'easeOut' }}
-							className="relative bg-white dark:bg-neutral-900/90 rounded-2xl shadow-lg border border-slate-200 dark:border-neutral-800 p-7 flex flex-col min-h-[220px]"
+							className="relative bg-white dark:bg-neutral-900/90 rounded-2xl shadow-lg border border-slate-200 dark:border-neutral-800 p-7 flex flex-col min-h-[220px] hover:shadow-xl transition-shadow duration-200"
 							style={{ overflow: 'visible' }}
 						>
 							<div className="flex items-center justify-between mb-2">
@@ -93,9 +94,10 @@ export default function ReviewsPage() {
 					))}
 				</motion.div>
 				<motion.div
-					initial={{ opacity: 0, y: 30 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
+					initial={{ opacity: 0, y: 20 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, margin: "-50px" }}
+					transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
 					className="w-full max-w-5xl flex flex-col md:flex-row gap-8"
 				>
 					<aside className="w-full md:w-80 flex-1 bg-white dark:bg-neutral-900/90 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-neutral-800">

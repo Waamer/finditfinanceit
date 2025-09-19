@@ -2,7 +2,7 @@
 
 import Footer from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 const hours = [
@@ -20,16 +20,29 @@ export default function SimpleCarLoansPage() {
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-white to-slate-200 dark:from-neutral-900 dark:to-neutral-950">
             <main className="flex-1 flex flex-col items-center px-4 py-10 md:py-16">
                 <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    viewport={{ once: true, margin: "-50px" }}
                     className="w-full max-w-5xl flex flex-col md:flex-row gap-8"
                 >
                     <section className="flex-1">
-                        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-primary dark:text-primary-foreground">
+                        <motion.h1 
+                            className="text-2xl md:text-3xl font-bold mb-6 text-primary dark:text-primary-foreground"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.1 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                        >
                             How a simple car loan can improve your car, your credit, and your life
-                        </h1>
-                        <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
+                        </motion.h1>
+                        <motion.div 
+                            className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.2 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                        >
                             <p>
                                 When you look at your personal credit report, there is usually a number from 1 to 9 assigned to each credit account. The closer the number is to 1 indicates a good credit repayment history with that account, and the closer the number is in the other direction to 9, indicates a bad repayment history with that particular account. Naturally everyone should aim to be closer to 1 as opposed to 9.
                             </p>
@@ -48,15 +61,28 @@ export default function SimpleCarLoansPage() {
                             <p>
                                 The above mentioned example is a demonstration as to how a simple car financing, can <b>IMPROVE</b> your car, and with that <b>IMPROVE</b> your credit, and with that <b>IMPROVE</b> the quality of your life!
                             </p>
-                        </div>
-                        <Link href="/survey" passHref>
-                            <button className="w-full md:w-auto mt-8 px-8 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors text-lg">
-                                APPLY NOW
-                            </button>
-                        </Link>
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.3 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                        >
+                            <Link href="/survey" passHref>
+                                <button className="w-full md:w-auto mt-8 px-8 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 hover:scale-[1.02] transition-all duration-200 text-lg shadow-lg">
+                                    APPLY NOW
+                                </button>
+                            </Link>
+                        </motion.div>
                     </section>
-                    <aside className="w-full md:w-80 flex-shrink-0">
-                        <Card className="shadow-md py-0 rounded-lg bg-white dark:bg-neutral-900/90">
+                    <motion.aside 
+                        className="w-full md:w-80 flex-shrink-0"
+                        initial={{ opacity: 0, x: 30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: 0.4 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                    >
+                        <Card className="shadow-md py-0 rounded-lg bg-white dark:bg-neutral-900/90 hover:shadow-xl transition-shadow duration-200">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-2 mb-4">
                                     <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
@@ -72,7 +98,7 @@ export default function SimpleCarLoansPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    </aside>
+                    </motion.aside>
                 </motion.div>
             </main>
             <Footer />

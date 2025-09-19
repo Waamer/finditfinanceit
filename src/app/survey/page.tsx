@@ -267,8 +267,9 @@ export default function QuizPage() {
         {/* Header, Progress Bar, and Title together */}
         <motion.div
           initial="hidden"
-          animate="visible"
+          whileInView="visible"
           variants={progressVariants}
+          viewport={{ once: true, margin: "-50px" }}
           className="mb-8"
         >
           <div className="text-center mb-4">
@@ -321,7 +322,13 @@ export default function QuizPage() {
         </div>
 
         {/* Logo Bar */}
-        <div className="flex justify-center mt-8 mb-4 lg:mb-32">
+        <motion.div 
+          className="flex justify-center mt-8 mb-4 lg:mb-32"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          viewport={{ once: true, margin: "-50px" }}
+        >
           <Image 
             src="/logobar.png" 
             alt="Trusted partners - Norton by Symantec, McAfee Secure, South West Auto Group, Google Reviews" 
@@ -330,36 +337,47 @@ export default function QuizPage() {
             className="max-w-full h-auto"
             priority={false}
           />
-        </div>
+        </motion.div>
 
         {/* Mobile Navigation - visible only on small screens */}
-        <div className="flex justify-between mt-8 lg:hidden">
+        <motion.div 
+          className="flex justify-between mt-8 lg:hidden"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          viewport={{ once: true, margin: "-50px" }}
+        >
           <Button
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 0}
-            className="flex items-center space-x-2 bg-transparent"
+            className="flex items-center space-x-2 bg-transparent hover:scale-[1.02] transition-transform duration-200"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Previous</span>
           </Button>
 
-          <Button onClick={nextStep} className="flex items-center space-x-2">
+          <Button onClick={nextStep} className="flex items-center space-x-2 hover:scale-[1.02] transition-transform duration-200">
             <span>{currentStep === totalSteps - 1 ? "Complete Quiz" : "Next"}</span>
             {currentStep === totalSteps - 1 ? <CheckCircle className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
           </Button>
-        </div>
+        </motion.div>
       </div>
 
       {/* Fixed Bottom Navigation Bar for Large Screens */}
-      <div className="hidden lg:block fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t shadow-lg z-50">
+      <motion.div 
+        className="hidden lg:block fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t shadow-lg z-50"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.5 }}
+      >
         <div className="container mx-auto px-4 max-w-4xl py-4">
           <div className="flex justify-between items-center">
             <Button
               variant="outline"
               onClick={prevStep}
               disabled={currentStep === 0}
-              className="flex items-center space-x-2 bg-transparent"
+              className="flex items-center space-x-2 bg-transparent hover:scale-[1.02] transition-transform duration-200"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Previous</span>
@@ -371,13 +389,13 @@ export default function QuizPage() {
               </p>
             </div>
 
-            <Button onClick={nextStep} className="flex items-center space-x-2">
+            <Button onClick={nextStep} className="flex items-center space-x-2 hover:scale-[1.02] transition-transform duration-200">
               <span>{currentStep === totalSteps - 1 ? "Complete Quiz" : "Next"}</span>
               {currentStep === totalSteps - 1 ? <CheckCircle className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
             </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }
